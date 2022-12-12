@@ -1,6 +1,7 @@
+from __future__ import print_function, unicode_literals
 import random
 from prettytable import PrettyTable
-
+from PyInquirer import prompt, print_json
 
 
 def introduction():
@@ -12,7 +13,19 @@ def char_creation():
 
 
 def choose_moves(our_hero, list_moves):
-    print(f"Hello {our_hero.hero_name}, Choose 4 Moves from the list below:")
+    questions = [
+                    {
+                  "type": "checkbox",
+                  "name": "MOVES!",
+                  "message": f"What four moves would like to use {our_hero.hero_name}?"
+                    }
+                ]
+
+    answers = prompt(questions)
+    print(answers)
+    return False
+
+
     moves_table = PrettyTable()
     moves_table.field_names = ["Name", "Uses", "Damage"]
     moves_table.add_row(["Punch", 25, 10])
@@ -21,7 +34,7 @@ def choose_moves(our_hero, list_moves):
     moves_table.add_row(["Smash", 10, 19])
     moves_table.add_row(["Clober", 5, 22])
     print(moves_table)
-    chosen = input("What 4 moves will you choose? Please separate choices with a comma and a space.\n")
+    chosen = "What 4 moves will you choose? Please separate choices with a comma and a space.\n"
     chosen_moves = chosen.split(", ")
 
     for c_move in chosen_moves:
