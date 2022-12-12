@@ -59,6 +59,7 @@ def ready_up(current_hero, current_villain):
                                  villain_moves])
         print(vill_stat_table)
         print(hero_stat_table)
+        print("\n\n")
     else:
         print("Not an option you made your choice by being here, ill ask again...")
         ready_up(current_hero, current_villain)
@@ -70,48 +71,91 @@ def turn_tracker(current_hero, current_villain):
     player_turn = True
 
     while game_on:
+
         if rand_int % 2 != 0:
             player_turn = False
-            print(f"{current_villain.vill_name}'s turn!")
+            print(f"\n{current_villain.vill_name}'s turn!")
             rand_int += 1
-            battle(current_hero, current_villain, player_turn)
-
+            if battle(current_hero, current_villain, player_turn) != False:
+                print()
+            else:
+                game_on = False
         else:
-            print("Your turn!")
+            print("\nYour turn!")
             player_turn = True
             rand_int += 1
-            battle(current_hero, current_villain, player_turn)
+            if battle(current_hero, current_villain, player_turn) != False:
+                print()
+            else:
+                game_on = False
+
+
+def get_vill_attack(current_villain):
+    rand_int = random.randint(0, 3)
+    return current_villain.attack[rand_int - 1]
+
+
+def check_health(current_hero_or_vill):
+    hp = current_hero_or_vill.hp
+    if hp <= 0:
+        print("GAME OVER!")
+        return False
+    else:
+        return True
 
 
 def battle(current_hero, current_villain, players_turn):
-    rand_int = random.randint(0, len(current_villain.attack))
 
     if not players_turn:
-        vill_hit = roll(current_villain.vill_def, current_villain.attack[rand_int - 1])
-        print("Villain turn Working!")
+        vill_attack = get_vill_attack(current_villain)
+        vill_hit = roll(current_villain.vill_def, vill_attack)
+        print(f"{current_villain.vill_name}, attacks with {vill_attack.name}!")
         print(vill_hit)
-        if roll != "Miss!":
-            current_hero.hp -= current_villain.attack[rand_int -1].damage
-            print(f"curent hero hp = {current_hero.hp}")
+        if vill_hit == "ULTRA HIT!":
+            current_hero.hp -= vill_attack.damage + 10
+            print(f"{current_hero.hero_name}'s health is now at {current_hero.hp}")
+        if vill_hit == "CRITICAL HIT!":
+            current_hero.hp -= vill_attack.damage + 5
+            print(f"{current_hero.hero_name}'s health is now at {current_hero.hp}")
+        if vill_hit == "HIT!":
+            current_hero.hp -= vill_attack.damage
+            print(f"{current_hero.hero_name}'s health is now at {current_hero.hp}")
+        if vill_hit == "Miss!":
+            if check_health(current_hero):
+                print(f"current hero hp still = {current_hero.hp}")
+            else:
+                print(f"{current_villain.vill_name} WINS!")
+                return False
     else:
-        chosen_attack = input(f"What attack would you like to use? ({current_hero.attack[0].name},"
-                              f" {current_hero.attack[1].name}, {current_hero.attack[2].name}, "
+        hero_attack = input(f"What attack would you like to use? ({current_hero.attack[0].name} ," 
+                              f"{current_hero.attack[1].name}, {current_hero.attack[2].name}, "
                               f"{current_hero.attack[3].name})\n")
         moves_list = {}
         i = 0
         for move in current_hero.attack:
             moves_list[move.name] = i
             i += 1
-        print(moves_list)
 
-        hero_hit = roll(current_hero.hero_def, chosen_attack)
-        print("Hero turn working")
+        hero_hit = roll(current_hero.hero_def, hero_attack)
+        print(f"{current_hero.hero_name}, attacks with {hero_attack}!")
         print(hero_hit)
-        if roll != "Miss!":
-            chosen_index = moves_list[chosen_attack]
-            print(chosen_index)
+        chosen_index = moves_list[hero_attack]
+        if hero_hit == "ULTRA HIT!":
+            current_villain.hp -= current_hero.attack[chosen_index].damage + 10
+            print(f"{current_villain}'s health now at {current_villain.hp}")
+        if hero_hit == "CRITICAL HIT!":
+            current_villain.hp -= current_hero.attack[chosen_index].damage + 5
+            print(f"{current_villain.vill_name}'s health now at {current_villain.hp}")
+        if hero_hit == "HIT!":
             current_villain.hp -= current_hero.attack[chosen_index].damage
-            print(f"current villian hp = {current_villain.hp}")
+            print(f"{current_villain.vill_name}'s health now at {current_villain.hp}")
+        if hero_hit == "MISS!":
+            print(f"current villain hp still = {current_hero.hp}")
+            if check_health(current_villain):
+                print(f"\ncurrent villain hp still = {current_villain.hp}")
+            else:
+                print(f"{current_hero.hero_name} WINS!")
+                return False
 
 
 def roll(char_defense, chosen_attack):
