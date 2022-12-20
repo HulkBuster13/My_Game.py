@@ -2,6 +2,12 @@ from __future__ import print_function, unicode_literals
 import random
 from prettytable import PrettyTable
 from PyInquirer import prompt, print_json
+from Heros import hero_turn_art
+
+# _+_+_+_+_+_+_+_+_+_+_+_+ ART _+_+_+_+_+_+_+_+_+_+_+_+_+
+
+
+
 
 
 def introduction():
@@ -13,26 +19,13 @@ def char_creation():
 
 
 def choose_moves(our_hero, list_moves):
-    questions = [
-                    {
-                  "type": "checkbox",
-                  "name": "MOVES!",
-                  "message": f"What four moves would like to use {our_hero.hero_name}?"
-                    }
-                ]
-
-    answers = prompt(questions)
-    print(answers)
-    return False
-
-
+    #return False
     moves_table = PrettyTable()
     moves_table.field_names = ["Name", "Uses", "Damage"]
-    moves_table.add_row(["Punch", 25, 10])
-    moves_table.add_row(["Kick", 20, 13])
-    moves_table.add_row(["Slam", 15, 16])
-    moves_table.add_row(["Smash", 10, 19])
-    moves_table.add_row(["Clober", 5, 22])
+
+    for move in list_moves:
+        moves_table.add_row([move.name, move.uses, move.damage])
+
     print(moves_table)
     chosen = "What 4 moves will you choose? Please separate choices with a comma and a space.\n"
     chosen_moves = chosen.split(", ")
@@ -42,10 +35,38 @@ def choose_moves(our_hero, list_moves):
             if l_move.name == c_move:
                 our_hero.attack.append(l_move)
 
+    choices = []
+    for i in list_moves:
+        choices.append({"name": i.name})
+
+    questions = [
+        {
+            "type": "checkbox",
+            "message": f"What 4 moves would like to use {our_hero.hero_name}?",
+            "name": "move_list",
+            "choices": choices
+        }
+    ]
+
+    answers = prompt.prompt(questions)
+
+    for i in answers["move_list"]:
+        our_hero.attack.append(i)
+
     chosen_moves_table = PrettyTable()
     chosen_moves_table.field_names = ["Name", "Uses", "Damage"]
+
+    counter = 0
+    for i in our_hero.attack:
+        for obj in list_moves:
+            obj_name = str(obj.name)
+            if i == obj_name:
+                our_hero.attack[counter] = obj
+                counter += 1
+
     for i in our_hero.attack:
         chosen_moves_table.add_row([i.name, i.uses, i.damage])
+
     print("\nHere are the attacks you have chosen for battle!")
     print(chosen_moves_table)
 
@@ -94,7 +115,7 @@ def turn_tracker(current_hero, current_villain):
             else:
                 game_on = False
         else:
-            print("\nYour turn!")
+            print("\nHeroes turn!")
             player_turn = True
             rand_int += 1
             if battle(current_hero, current_villain, player_turn) != False:
@@ -109,8 +130,7 @@ def get_vill_attack(current_villain):
 
 
 def check_health(current_hero_or_vill):
-    hp = current_hero_or_vill.hp
-    if hp <= 0:
+    if current_hero_or_vill.hp <= 0:
         print("GAME OVER!")
         return False
     else:
@@ -126,49 +146,56 @@ def battle(current_hero, current_villain, players_turn):
         print(vill_hit)
         if vill_hit == "ULTRA HIT!":
             current_hero.hp -= vill_attack.damage + 10
-            print(f"{current_hero.hero_name}'s health is now at {current_hero.hp}")
         if vill_hit == "CRITICAL HIT!":
             current_hero.hp -= vill_attack.damage + 5
-            print(f"{current_hero.hero_name}'s health is now at {current_hero.hp}")
         if vill_hit == "HIT!":
             current_hero.hp -= vill_attack.damage
+        if check_health(current_hero):
             print(f"{current_hero.hero_name}'s health is now at {current_hero.hp}")
-        if vill_hit == "Miss!":
-            if check_health(current_hero):
-                print(f"current hero hp still = {current_hero.hp}")
-            else:
-                print(f"{current_villain.vill_name} WINS!")
-                return False
+        else:
+            print(f"{current_villain.vill_name} WINS!")
+            return False
     else:
-        hero_attack = input(f"What attack would you like to use? ({current_hero.attack[0].name} ," 
-                              f"{current_hero.attack[1].name}, {current_hero.attack[2].name}, "
-                              f"{current_hero.attack[3].name})\n")
+        #print(hero_turn_art)
+        choices = []
+        for i in current_hero.attack:
+            choices.append({"name": i.name})
+        questions = [
+            {
+                "type": "checkbox",
+                "message": f"What attack would you like to use {current_hero.hero_name}?",
+                "name": "move_list",
+                "choices": choices
+            }
+        ]
+
+        answer = prompt.prompt(questions)
+        coded_answer = ""
+        for i in answer["move_list"]:
+            coded_answer = i
+
         moves_list = {}
         i = 0
         for move in current_hero.attack:
             moves_list[move.name] = i
             i += 1
 
-        hero_hit = roll(current_hero.hero_def, hero_attack)
-        print(f"{current_hero.hero_name}, attacks with {hero_attack}!")
+        hero_hit = roll(current_hero.hero_def, coded_answer)
+        print(f"{current_hero.hero_name}, attacks with {coded_answer}!")
         print(hero_hit)
-        chosen_index = moves_list[hero_attack]
+        chosen_index = moves_list[coded_answer]
         if hero_hit == "ULTRA HIT!":
             current_villain.hp -= current_hero.attack[chosen_index].damage + 10
-            print(f"{current_villain}'s health now at {current_villain.hp}")
         if hero_hit == "CRITICAL HIT!":
             current_villain.hp -= current_hero.attack[chosen_index].damage + 5
-            print(f"{current_villain.vill_name}'s health now at {current_villain.hp}")
         if hero_hit == "HIT!":
             current_villain.hp -= current_hero.attack[chosen_index].damage
+        if check_health(current_villain):
             print(f"{current_villain.vill_name}'s health now at {current_villain.hp}")
-        if hero_hit == "MISS!":
-            print(f"current villain hp still = {current_hero.hp}")
-            if check_health(current_villain):
-                print(f"\ncurrent villain hp still = {current_villain.hp}")
-            else:
-                print(f"{current_hero.hero_name} WINS!")
-                return False
+            print("\n")
+        else:
+            print(f"{current_hero.hero_name} WINS!")
+            return False
 
 
 def roll(char_defense, chosen_attack):

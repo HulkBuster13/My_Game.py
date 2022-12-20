@@ -5,20 +5,41 @@ from Funtions import introduction, char_creation, choose_moves, ready_up, turn_t
 
 #_+_+_+_+_+_+_+_+_+_+_+_+ TO DO _+_+_+_+_+_+_+_+_+_+_
 # remove quotes around Moves in PrettyTable
+# delegate winner
+# disable moves when uses are out
 
-moves_list = []
+
+
 #_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_ HEROS _+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_
-# add heros here
+# add heroes here
+
+
+
+
 
 
 #_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_ VILLIANS _+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+
+def add_villian_to_villain_list(villain):
+    villain_list.append(villain)
+
+villain_list = []
+
 maganox = Villain("Magnox", 80, 50)
+add_villian_to_villain_list(maganox)
+
+
+
 heshera = Villain("Heshera", 100, 76)
+add_villian_to_villain_list(heshera)
+
+
+
 
 #_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+ MOVES STUFF_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+_+
 def add_move_to_moves_list(move_object):
     moves_list.append(move_object)
 
+moves_list = []
 
 #GOTTA BE A BETTER WAY TO ADD THESE
 punch = Action("Punch", 25, 10)
@@ -31,6 +52,8 @@ smash = Action("Smash", 10, 19)
 add_move_to_moves_list(smash)
 clober = Action("Clober", 5, 22)
 add_move_to_moves_list(clober)
+spit = Action("Spit", 1, 35)
+add_move_to_moves_list(spit)
 
 maganox.add_move(kick)
 maganox.add_move(punch)
